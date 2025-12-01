@@ -1,6 +1,6 @@
-# Example Python REST server (FastAPI) with Kafka events
+# Example Python REST server (Flask) with Kafka events
 
-This repository contains a FastAPI-based REST server with:
+This repository contains a Flask-based REST server with:
 - A small in-memory store for items
 - Kafka event producer library for publishing events to Kafka topics
 - Comprehensive test suite with mocked Kafka integration
@@ -20,10 +20,16 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Run the server with uvicorn:
+3. Run the server with Flask:
 
 ```bash
-uvicorn app.main:app --reload
+flask run --host 0.0.0.0 --port 8000
+```
+
+Or run directly:
+
+```bash
+python app/main.py
 ```
 
 The server will be available at http://127.0.0.1:8000.

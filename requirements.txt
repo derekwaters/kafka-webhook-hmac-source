@@ -1,0 +1,6 @@
+fastapi>=0.95
+uvicorn[standard]>=0.18
+pytest>=7.0
+pytest-asyncio>=0.21
+httpx>=0.24
+kafka-python>=2.0.2

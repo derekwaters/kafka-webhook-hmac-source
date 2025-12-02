@@ -34,9 +34,9 @@ def test_post_event(client):
     expected_signature = "sha256=" + hash_object.hexdigest()
 
     r = client.post("/events", json=payload, headers=[("x-hub-signature-256", expected_signature)])
-    assert r.status_code == 201
+    assert r.status_code == 202
     body = r.get_json()
-    assert body["id"] == "1"
+    assert body["status"] == "accepted"
 
 def test_post_event_without_hmac(client):
     """Test posting a new event to Kafka."""

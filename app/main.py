@@ -23,8 +23,8 @@ _kafka_config = KafkaConfig(
 )
 _kafka_producer = EventProducer(_kafka_config)
 
-_github_hmac_header = "x-hub-signature-256"
-_github_secret = os.getenv("GITHUB_HMAC_SECRET", "github_hmac_secret")
+_github_hmac_header = os.getenv("HMAC_HEADER", "x-hub-signature-256")
+_github_secret = os.getenv("HMAC_SECRET", "github_hmac_secret")
 
 
 # Validate HMAC Signatures

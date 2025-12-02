@@ -1,9 +1,9 @@
 # Example Python REST server (Flask) with Kafka events
 
 This repository contains a Flask-based REST server with:
-- A small in-memory store for items
 - Kafka event producer library for publishing events to Kafka topics
 - Comprehensive test suite with mocked Kafka integration
+- HMAC message validation for GitHub webhooks
 
 ## Quick start
 
@@ -36,17 +36,12 @@ The server will be available at http://127.0.0.1:8000.
 
 ## Endpoints
 
-**Health & Items:**
+**Health:**
 - `GET /health` — returns `{"status": "ok"}`
-- `POST /items` — create an item, JSON body: `{"id": "1", "name": "Foo", "value": 1.23}`
-- `GET /items/{id}` — retrieve an item
 
 **Kafka Events:**
 - `POST /events` — post an event to Kafka (202 Accepted)
-  - JSON body: `{"event_type": "user.login", "payload": {"user_id": 123}, "topic": "events"}`
-  - `event_type`: required string describing the event
-  - `payload`: required dict with event data
-  - `topic`: optional, defaults to `KAFKA_TOPIC` env var or "events"
+  - JSON body: Entire body is sent to the configured Kafka topic (see config below)
 
 ## Kafka configuration
 
@@ -55,6 +50,8 @@ Set environment variables to control Kafka behavior:
 ```bash
 export KAFKA_BROKERS="localhost:9092"      # Comma-separated brokers
 export KAFKA_TOPIC="events"                 # Default topic for events
+export HMAC_HEADER="x-hub-signature-256"    # Name of the input HTTP header for HMAC token
+export HMAC_SECRET="github_hmac_secret"     # The HMAC secret shared with the client application
 ```
 
 ## Kafka producer library
@@ -102,4 +99,11 @@ producer.close()
 pytest -q
 ```
 
-All tests use mocks for Kafka, so no live Kafka instance is required during testing.
+All kafka-producer tests use mocks for Kafka, so a live Kafka instance is only required
+during testing the api. You can create a Kafka testing instance locally using podman:
+
+```
+podman pull apache/kafka:4.1.1
+
+podman run -p 9092:9092 apache/kafka:4.1.1
+```

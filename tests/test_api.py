@@ -3,6 +3,9 @@ Tests for the Flask REST API endpoints.
 """
 
 import pytest
+import hmac
+import hashlib
+import json
 
 from app.main import app
 
@@ -21,25 +24,16 @@ def test_health(client):
     assert r.status_code == 200
     assert r.get_json() == {"status": "ok"}
 
-
-def test_create_and_get_item(client):
-    """Test creating and retrieving an item."""
+def test_post_event(client):
+    """Test posting a new event to Kafka."""
     payload = {"id": "1", "name": "Test", "value": 3.14}
-    r = client.post("/items", json=payload)
+    payload_str = json.dumps(payload).encode('utf-8')
+
+    secret_token = "github_hmac_secret"
+    hash_object = hmac.new(secret_token.encode('utf-8'), msg=payload_str, digestmod=hashlib.sha256)
+    expected_signature = "sha256=" + hash_object.hexdigest()
+
+    r = client.post("/events", json=payload, headers=[("x-hub-signature-256", expected_signature)])
     assert r.status_code == 201
     body = r.get_json()
     assert body["id"] == "1"
-
-    r2 = client.get("/items/1")
-    assert r2.status_code == 200
-    assert r2.get_json()["name"] == "Test"
-
-
-def test_create_duplicate_fails(client):
-    """Test that creating duplicate items fails."""
-    payload = {"id": "dup", "name": "X"}
-    r = client.post("/items", json=payload)
-    assert r.status_code == 201
-
-    r2 = client.post("/items", json=payload)
-    assert r2.status_code == 400

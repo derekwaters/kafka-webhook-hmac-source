@@ -37,3 +37,17 @@ def test_post_event(client):
     assert r.status_code == 201
     body = r.get_json()
     assert body["id"] == "1"
+
+def test_post_event_without_hmac(client):
+    """Test posting a new event to Kafka."""
+    payload = {"id": "1", "name": "Test", "value": 3.14}
+
+    r = client.post("/events", json=payload)
+    assert r.status_code == 500
+
+def test_post_event_with_invalid_hmac(client):
+    """Test posting a new event to Kafka."""
+    payload = {"id": "1", "name": "Test", "value": 3.14}
+
+    r = client.post("/events", json=payload, headers=[("x-hub-signature-256", "dummy_header")])
+    assert r.status_code == 500
